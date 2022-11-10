@@ -44,24 +44,91 @@ Evaluate the model with the testing data.
 
 ## PROGRAM
 
-Include your code here
+import pandas as pd
+from google.colab import auth
+import gspread
+from google.auth import default
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+import tensorflow as tf
+
+auth.authenticate_user()
+creds, _ = default()
+gc = gspread.authorize(creds)
+
+
+worksheet = gc.open('firstdataset').sheet1
+rows = worksheet.get_all_values()
+
+
+df = pd.DataFrame(rows[1:], columns=rows[0])
+df.head(n=10)
+
+df.dtypes
+
+df = df.astype({'X':'float'})
+df = df.astype({'Y':'float'})
+
+df.dtypes
+
+X = df[['X']].values
+Y = df[['Y']].values
+
+X_train,X_test,Y_train,Y_test = train_test_split(X,Y,test_size=0.33,random_state=50)
+X_test.shape
+
+scaler = MinMaxScaler()
+scaler.fit(X_train)
+X_train_scaled = scaler.transform(X_train)
+X_train_scaled
+
+
+ai_brain = Sequential([
+    Dense(2,activation = 'relu'),
+    Dense(1,activation = 'relu')
+])
+ai_brain.compile(optimizer = 'rmsprop',loss = 'mse')
+ai_brain.fit(x = X_train_scaled,y = Y_train,epochs = 20000)
+loss_df = pd.DataFrame(ai_brain.history.history)
+loss_df.plot()
+X_test
+X_test_scaled = scaler.transform(X_test)
+X_test_scaled
+ai_brain.evaluate(X_test_scaled,Y_test)
+
+
+input = [[120]]
+input_scaled = scaler.transform(input)
+input_scaled.shape
+input_scaled
+ai_brain.predict(input_scaled)
 
 ## Dataset Information
 
-Include screenshot of the dataset
+![image](https://user-images.githubusercontent.com/112951070/201091679-5d583d03-733b-4f4e-8433-16bb33b4e7e6.png)
+
 
 ## OUTPUT
 
-### Training Loss Vs Iteration Plot
+
+
 
 Include your plot here
 
-### Test Data Root Mean Squared Error
+![image](https://user-images.githubusercontent.com/112951070/201091904-6519c0ed-4b46-4c83-9c5f-39930e49894b.png)
+
 
 Find the test data root mean squared error
 
-### New Sample Data Prediction
+![image](https://user-images.githubusercontent.com/112951070/201091952-744d2176-dd8d-41e8-8dd9-7a92d8fa063e.png)
 
 Include your sample input and output here
+![image](https://user-images.githubusercontent.com/112951070/201091984-e4e4b4f9-acbc-4b29-8660-319c97968e20.png)
+![image](https://user-images.githubusercontent.com/112951070/201092018-759a3283-601c-4792-8d70-0396415fc6b4.png)
+
 
 ## RESULT
+Thus, The given dataset is performed with a neural network regression model
